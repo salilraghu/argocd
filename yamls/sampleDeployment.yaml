@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appdeployment
+  labels:
+    app: pythonappdeployment
+spec:
+  selector:
+    matchLabels:
+      name: pythonapp
+      type: app
+  replicas: 2
+  template:
+    metadata:
+      name: pythonapp
+      labels:
+        name: pythonapp
+        type: app
+    spec:
+      containers:
+        - name: sampleapp
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "250m"
+            limits:
+              memory: "64Mi"
+              cpu: "350m"
+
+          image: salilr/study_app:v1
+          ports:
+            - containerPort: 5000
+              name: app-port
+      imagePullSecrets:
+        - name: dockerhubsalil
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dbdeployment
+  labels:
+    app: redisdeployment
+spec:
+  selector:
+    matchLabels:
+      name: redis-pod
+      type: db
+  replicas: 3
+  template:
+    metadata:
+      name: redis
+      labels:
+        name: redis-pod
+        type: db
+    spec:
+      containers:
+        - name: redis
+          image: redis
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "250m"
+            limits:
+              memory: "64Mi"
+              cpu: "350m"
+
+          ports:
+            - containerPort: 6379
+              name: db-port
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    name: redis-pod
+    type: db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: NodePort
+  ports:
+    - targetPort: app-port
+      port: 5000
+      nodePort: 30008
+      protocol: TCP
+      name: appservice
+  selector:
+    name: pythonapp
+    type: app
