@@ -27,7 +27,7 @@ spec:
               memory: "64Mi"
               cpu: "350m"
 
-          image: salilr/study_app:v2
+          image: salilr/study_app:v54
           ports:
             - containerPort: 5000
               name: app-port
