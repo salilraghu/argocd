@@ -45,7 +45,7 @@ spec:
     matchLabels:
       name: redis-pod
       type: db
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       name: redis
